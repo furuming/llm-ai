@@ -10,7 +10,7 @@ ENV/
 
 # Environment files
 .env
-.env.*
+!.env.sample
 
 # Distribution / packaging
 build/

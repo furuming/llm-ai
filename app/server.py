@@ -4,7 +4,7 @@ from __future__ import annotations
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Tuple
 
-from .router import Router, create_router
+from .router import Router, create_router, extract_path
 
 
 class AppRequestHandler(BaseHTTPRequestHandler):
@@ -16,13 +16,18 @@ class AppRequestHandler(BaseHTTPRequestHandler):
         """GETリクエストの振る舞いを定義する。"""
         self._dispatch("GET")
 
+    def do_POST(self) -> None:  # noqa: N802
+        """POSTリクエストの振る舞いを定義する。"""
+        self._dispatch("POST")
+
     def _dispatch(self, method: str) -> None:
         router = self.router
         if router is None:
             self.send_error(500, "Router not configured")
             return
 
-        handler = router.resolve(method, self.path)
+        path = extract_path(self.path)
+        handler = router.resolve(method, path)
         if handler is None:
             self.send_error(404, "Not Found")
             return
